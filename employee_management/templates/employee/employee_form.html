@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if employee %}Edit{% else %}Add{% endif %} Employee - Employee Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-users me-2"></i>
+                <span class="d-none d-sm-inline">Employee Management</span>
+                <span class="d-sm-none">EMS</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3 d-none d-md-inline">
+                        <i class="fas fa-user me-1"></i> {{ session.user_name }}
+                    </span>
+                    <a class="nav-link" href="{{ url_for('logout') }}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="d-none d-md-inline ms-1">Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas {% if employee %}fa-edit{% else %}fa-plus{% endif %} me-2"></i>
+                {% if employee %}Edit{% else %}Add{% endif %} Employee
+            </h2>
+            <a href="{{ url_for('employees') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to Employees
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="employeeForm" novalidate>
+                    <div class="row">
+                        <!-- Personal Information -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ employee.name if employee else '' }}" 
+                                       pattern="[A-Za-z\s\.\-]{2,}" 
+                                       title="Please enter a valid name (letters and spaces only)" required>
+                                <div class="invalid-feedback">Please enter a valid full name (minimum 2 characters, letters only)</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="mobile_number" class="form-label">Mobile Number</label>
+                                <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
+                                       value="{{ employee.mobile_number if employee and employee.mobile_number else '' }}" 
+                                       pattern="[0-9]{10}" 
+                                       title="Please enter a 10-digit mobile number">
+                                <div class="invalid-feedback">Please enter a valid 10-digit mobile number</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="pan_number" class="form-label">PAN Number</label>
+                                <input type="text" class="form-control" id="pan_number" name="pan_number" 
+                                       value="{{ employee.pan_number if employee and employee.pan_number else '' }}"
+                                       pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                                       title="Please enter a valid PAN number (Format: ABCDE1234F)">
+                                <div class="invalid-feedback">Please enter a valid PAN number (Format: ABCDE1234F)</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" 
+                                       value="{{ employee.date_of_birth if employee and employee.date_of_birth else '' }}"
+                                       max="{{ today if today else '' }}">
+                                <div class="invalid-feedback">Please enter a valid date of birth</div>
+                            </div>
+
+                            <!-- Employment Dates -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="joining_date" class="form-label">Joining Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="joining_date" name="joining_date" 
+                                               value="{{ employee.joining_date if employee and employee.joining_date else '' }}"
+                                               max="{{ today if today else '' }}" required>
+                                        <div class="invalid-feedback">Please enter a valid joining date</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="leaving_date" class="form-label">Leaving Date</label>
+                                        <input type="date" class="form-control" id="leaving_date" name="leaving_date" 
+                                               value="{{ employee.leaving_date if employee and employee.leaving_date else '' }}"
+                                               min="{{ employee.joining_date if employee and employee.joining_date else '' }}"
+                                               max="{{ today if today else '' }}">
+                                        <div class="invalid-feedback">Leaving date must be after joining date</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information & Salary -->
+                        <div class="col-md-6">
+                            <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Additional Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" id="address" name="address" rows="3">{{ employee.address if employee and employee.address else '' }}</textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="profile_image" class="form-label">Profile Image</label>
+                                <input type="file" class="form-control" id="profile_image" name="profile_image" 
+                                       accept=".jpg,.jpeg,.png,.gif">
+                                <div class="form-text">Supported formats: JPG, PNG, GIF. Max size: 2MB</div>
+                                
+                                {% if employee and employee.profile_image %}
+                                <div class="mt-2">
+                                    <label class="form-label">Current Image:</label>
+                                    <div>
+                                        <img src="{{ url_for('static', filename='images/uploads/' + employee.profile_image) }}" 
+                                             class="rounded" style="max-width: 150px; max-height: 150px;" 
+                                             alt="Current Profile Image"
+                                             onerror="this.style.display='none'">
+                                    </div>
+                                    <small class="text-muted">Upload a new image to replace the current one.</small>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Salary Configuration -->
+                            <h5 class="mb-3 mt-4"><i class="fas fa-money-bill me-2"></i>Salary Configuration</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="salary_type" class="form-label">Salary Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="salary_type" name="salary_type" required>
+                                            <option value="per_day" {% if salary_type == 'per_day' or not salary_type %}selected{% endif %}>Per Day Salary</option>
+                                            <option value="per_month" {% if salary_type == 'per_month' %}selected{% endif %}>Per Month Salary</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="working_days_per_week" class="form-label">Working Days Per Week <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="working_days_per_week" name="working_days_per_week" required>
+                                            <option value="5" {% if working_days == 5 %}selected{% endif %}>5 Days</option>
+                                            <option value="6" {% if working_days == 6 or not working_days %}selected{% endif %}>6 Days</option>
+                                            <option value="7" {% if working_days == 7 %}selected{% endif %}>7 Days</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3" id="per_day_salary_field">
+                                        <label for="per_day_salary" class="form-label">Per Day Salary <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="number" class="form-control" id="per_day_salary" name="per_day_salary" 
+                                                   value="{{ "%.2f"|format(employee_salary) if employee_salary and (salary_type == 'per_day' or not salary_type) else '350.00' }}" 
+                                                   step="0.01" min="0">
+                                        </div>
+                                        <div class="form-text">Daily salary amount</div>
+                                        <div class="invalid-feedback">Please enter a valid salary amount</div>
+                                    </div>
+                                    
+                                    <div class="mb-3" id="monthly_salary_field" style="display: none;">
+                                        <label for="monthly_salary" class="form-label">Monthly Salary <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="number" class="form-control" id="monthly_salary" name="monthly_salary" 
+                                                   value="{{ "%.2f"|format(monthly_salary) if monthly_salary else '' }}" 
+                                                   step="0.01" min="0">
+                                        </div>
+                                        <div class="form-text">Monthly fixed salary</div>
+                                        <div class="invalid-feedback">Please enter a valid monthly salary</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="holiday_day" class="form-label">Weekly Holiday <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="holiday_day" name="holiday_day" required>
+                                            <option value="sunday" {% if holiday_day == 'sunday' %}selected{% endif %}>Sunday</option>
+                                            <option value="monday" {% if holiday_day == 'monday' %}selected{% endif %}>Monday</option>
+                                            <option value="tuesday" {% if holiday_day == 'tuesday' %}selected{% endif %}>Tuesday</option>
+                                            <option value="wednesday" {% if holiday_day == 'wednesday' %}selected{% endif %}>Wednesday</option>
+                                            <option value="thursday" {% if holiday_day == 'thursday' %}selected{% endif %}>Thursday</option>
+                                            <option value="friday" {% if holiday_day == 'friday' or not holiday_day %}selected{% endif %}>Friday</option>
+                                            <option value="saturday" {% if holiday_day == 'saturday' %}selected{% endif %}>Saturday</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Current Profile Display for Edit -->
+                            {% if employee %}
+                            <div class="mb-3 p-3 bg-light rounded">
+                                <label class="form-label">Current Employee Profile</label>
+                                <div class="d-flex align-items-center">
+                                    {% if employee.profile_image %}
+                                    <img src="{{ url_for('static', filename='images/uploads/' + employee.profile_image) }}" 
+                                         class="rounded-circle me-3" 
+                                         style="width: 80px; height: 80px; object-fit: cover;" 
+                                         alt="{{ employee.name if employee else 'Employee' }}"
+                                         onerror="this.style.display='none'">
+                                    {% else %}
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 80px; height: 80px;">
+                                        <i class="fas fa-user text-white fa-2x"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ employee.name if employee else 'No Name' }}</strong><br>
+                                        <small class="text-muted">
+                                            Mobile: {{ employee.mobile_number if employee and employee.mobile_number else 'Not provided' }}
+                                        </small><br>
+                                        <small class="text-muted">
+                                            PAN: {{ employee.pan_number if employee and employee.pan_number else 'Not provided' }}
+                                        </small><br>
+                                        <small class="text-muted">
+                                            Joined: {{ employee.joining_date if employee and employee.joining_date else 'Not provided' }}
+                                        </small><br>
+                                        {% if employee.leaving_date %}
+                                        <small class="text-danger">
+                                            Left: {{ employee.leaving_date }}
+                                        </small><br>
+                                        {% endif %}
+                                        <small class="text-success">
+                                            Salary: 
+                                            {% if salary_type == 'per_month' %}
+                                                ₹{{ "%.2f"|format(monthly_salary if monthly_salary else 0) }}/month
+                                            {% else %}
+                                                ₹{{ "%.2f"|format(employee_salary if employee_salary else 350.00) }}/day
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{{ url_for('employees') }}" class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-times me-1"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas {% if employee %}fa-save{% else %}fa-plus{% endif %} me-1"></i>
+                                    {% if employee %}Update Employee{% else %}Add Employee{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Enhanced Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('employeeForm');
+            const mobileInput = document.getElementById('mobile_number');
+            const panInput = document.getElementById('pan_number');
+            const nameInput = document.getElementById('name');
+            const joiningDateInput = document.getElementById('joining_date');
+            const leavingDateInput = document.getElementById('leaving_date');
+            const salaryTypeSelect = document.getElementById('salary_type');
+            const perDayField = document.getElementById('per_day_salary_field');
+            const monthlyField = document.getElementById('monthly_salary_field');
+            const perDaySalaryInput = document.getElementById('per_day_salary');
+            const monthlySalaryInput = document.getElementById('monthly_salary');
+            
+            // Salary type toggle function
+            function toggleSalaryFields() {
+                if (salaryTypeSelect.value === 'per_month') {
+                    perDayField.style.display = 'none';
+                    monthlyField.style.display = 'block';
+                    // Make per day salary not required when monthly is selected
+                    perDaySalaryInput.required = false;
+                    monthlySalaryInput.required = true;
+                } else {
+                    perDayField.style.display = 'block';
+                    monthlyField.style.display = 'none';
+                    // Make monthly salary not required when per day is selected
+                    perDaySalaryInput.required = true;
+                    monthlySalaryInput.required = false;
+                }
+            }
+            
+            // Initial toggle
+            toggleSalaryFields();
+            
+            // Toggle on change
+            salaryTypeSelect.addEventListener('change', toggleSalaryFields);
+            
+            // Mobile number validation - allow only digits
+            mobileInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 10) {
+                    this.value = this.value.slice(0, 10);
+                }
+            });
+            
+            // PAN number validation - convert to uppercase
+            panInput.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+            
+            // Name validation - allow only letters, spaces, dots, hyphens
+            nameInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^A-Za-z\s\.\-]/g, '');
+            });
+            
+            // Salary validation
+            perDaySalaryInput.addEventListener('input', function() {
+                if (this.value < 0) {
+                    this.value = 0;
+                }
+            });
+            
+            monthlySalaryInput.addEventListener('input', function() {
+                if (this.value < 0) {
+                    this.value = 0;
+                }
+            });
+            
+            // Date validation - ensure leaving date is after joining date
+            joiningDateInput.addEventListener('change', function() {
+                if (leavingDateInput.value && leavingDateInput.value < this.value) {
+                    leavingDateInput.setCustomValidity('Leaving date must be after joining date');
+                } else {
+                    leavingDateInput.setCustomValidity('');
+                }
+                // Update leaving date min attribute
+                leavingDateInput.min = this.value;
+            });
+            
+            leavingDateInput.addEventListener('change', function() {
+                if (joiningDateInput.value && this.value < joiningDateInput.value) {
+                    this.setCustomValidity('Leaving date must be after joining date');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+            
+            // Enhanced form validation with Bootstrap validation
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!form.checkValidity()) {
+                    e.stopPropagation();
+                    form.classList.add('was-validated');
+                    return;
+                }
+                
+                // Additional custom validation
+                const name = nameInput.value.trim();
+                const mobile = mobileInput.value.trim();
+                const pan = panInput.value.trim();
+                const joiningDate = joiningDateInput.value;
+                const leavingDate = leavingDateInput.value;
+                const salaryType = salaryTypeSelect.value;
+                const perDaySalary = parseFloat(perDaySalaryInput.value);
+                const monthlySalary = parseFloat(monthlySalaryInput.value);
+                
+                let isValid = true;
+                let errorMessage = '';
+                
+                // Name validation
+                if (!name || name.length < 2) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid full name (minimum 2 characters)';
+                }
+                // Mobile validation (optional but if provided, must be valid)
+                else if (mobile && mobile.length !== 10) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid 10-digit mobile number';
+                }
+                // Joining date validation
+                else if (!joiningDate) {
+                    isValid = false;
+                    errorMessage = 'Please enter a joining date';
+                }
+                // Date validation
+                else if (leavingDate && leavingDate < joiningDate) {
+                    isValid = false;
+                    errorMessage = 'Leaving date must be after joining date';
+                }
+                // Salary validation based on type
+                else if (salaryType === 'per_day' && (!perDaySalary || perDaySalary <= 0)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid per day salary amount greater than 0';
+                }
+                else if (salaryType === 'per_month' && (!monthlySalary || monthlySalary <= 0)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid monthly salary amount greater than 0';
+                }
+                // PAN validation (if provided)
+                else if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid PAN number (Format: ABCDE1234F)';
+                }
+                
+                if (!isValid) {
+                    alert(errorMessage);
+                    return;
+                }
+                
+                // If all validations pass, submit the form
+                form.submit();
+            });
+            
+            // Real-time validation feedback
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    this.classList.add('validated');
+                    if (!this.checkValidity()) {
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                    } else {
+                        this.classList.add('is-valid');
+                        this.classList.remove('is-invalid');
+                    }
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('validated')) {
+                        if (!this.checkValidity()) {
+                            this.classList.add('is-invalid');
+                            this.classList.remove('is-valid');
+                        } else {
+                            this.classList.add('is-valid');
+                            this.classList.remove('is-invalid');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        .is-valid {
+            border-color: #198754 !important;
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .validated:valid {
+            border-color: #198754 !important;
+        }
+        .validated:invalid {
+            border-color: #dc3545 !important;
+        }
+    </style>
+</body>
+</html>

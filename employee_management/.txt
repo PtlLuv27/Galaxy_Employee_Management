@@ -1,0 +1,34 @@
+employee_management/
+├── app.py
+├── config.py
+├── requirements.txt
+├── database/
+│   └── schema.sql
+├── static/
+│   ├── css/
+│   │   ├── style.css
+│   │   └── auth.css
+│   ├── js/
+│   │   ├── main.js
+│   │   ├── auth.js
+│   │   ├── employee.js
+│   │   ├── attendance.js
+│   │   └── salary.js
+│   └── images/
+│       └── uploads/ (empty folder)
+└── templates/
+    ├── base.html
+    ├── auth/
+    │   ├── login.html
+    │   ├── register.html
+    │   └── forgot_password.html
+    ├── dashboard.html
+    ├── employee/
+    │   ├── employees.html
+    │   └── employee_form.html
+    ├── attendance/
+    │   └── attendance.html
+    ├── salary/
+    │   └── salary.html
+    └── report/
+        └── report.html

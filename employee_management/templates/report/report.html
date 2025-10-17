@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Employee Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+        
+        body {
+            font-size: 14px;
+            background-color: #f8f9fa;
+            padding-bottom: 80px;
+        }
+        
+        .salary-positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .salary-negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .advance-positive {
+            color: #17a2b8;
+            font-weight: bold;
+        }
+
+        .mobile-header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            padding: 1rem;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .report-card {
+            border-left: 4px solid #007bff;
+            margin-bottom: 1rem;
+        }
+
+        .week-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .present-badge {
+            background-color: #28a745;
+            font-size: 0.7rem;
+        }
+
+        .halfday-badge {
+            background-color: #ffc107;
+            color: #000;
+            font-size: 0.7rem;
+        }
+
+        .absent-badge {
+            background-color: #dc3545;
+            font-size: 0.7rem;
+        }
+
+        .advance-badge {
+            background-color: #17a2b8;
+            font-size: 0.7rem;
+        }
+
+        .employee-status-active {
+            border-left: 4px solid #28a745;
+        }
+
+        .employee-status-inactive {
+            border-left: 4px solid #dc3545;
+        }
+
+        .employee-card {
+            transition: transform 0.2s;
+            height: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 0.8rem;
+            text-align: center;
+            height: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+
+        .monthly-salary-card {
+            border-left: 4px solid #28a745;
+        }
+
+        .weekly-salary-card {
+            border-left: 4px solid #ffc107;
+        }
+
+        .advance-card {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .salary-breakdown {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .week-header {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border-radius: 8px 8px 0 0;
+            padding: 0.8rem;
+        }
+
+        .daily-breakdown-table {
+            font-size: 0.75rem;
+        }
+
+        .daily-breakdown-table th {
+            background-color: #f8f9fa;
+            font-size: 0.7rem;
+            padding: 0.5rem;
+        }
+
+        .daily-breakdown-table td {
+            padding: 0.5rem;
+            font-size: 0.7rem;
+        }
+
+        .advance-row {
+            background-color: #e3f2fd !important;
+        }
+
+        .net-salary-positive {
+            background-color: #d4edda !important;
+        }
+
+        .net-salary-negative {
+            background-color: #f8d7da !important;
+        }
+
+        .left-employee-badge {
+            background-color: #6c757d;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        /* Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #dee2e6;
+            padding: 0.5rem;
+            z-index: 1000;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.3rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #6c757d;
+            padding: 0.4rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+            background-color: #e3f2fd;
+        }
+        
+        .nav-item i {
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .nav-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        /* Mobile-specific optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .btn-group-vertical .btn {
+                font-size: 0.8rem;
+                padding: 0.5rem;
+            }
+
+            .card-header h5 {
+                font-size: 1.1rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .employee-name {
+                font-size: 0.9rem;
+                font-weight: 600;
+            }
+
+            .nav-item {
+                padding: 0.3rem;
+            }
+            
+            .nav-item i {
+                font-size: 1rem;
+            }
+            
+            .nav-label {
+                font-size: 0.6rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .mobile-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .stat-number {
+                font-size: 1rem;
+            }
+
+            .stat-label {
+                font-size: 0.65rem;
+            }
+
+            .btn-mobile {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+                border-radius: 8px;
+            }
+
+            .nav-grid {
+                gap: 0.2rem;
+            }
+            
+            .nav-label {
+                font-size: 0.55rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-label {
+                font-size: 0.5rem;
+            }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 0.8rem;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Filter section improvements */
+        .filter-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+
+        }
+
+        .filter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* Loading states */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Print styles */
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .card {
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        .btn {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Smooth animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom scrollbar for mobile */
+        .table-responsive::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header no-print">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Reports</h2>
+                    <small class="opacity-75">
+                        {% if report_type == 'weekly_salary' %}
+                        Weekly Salary - {{ selected_month }}
+                        {% elif report_type == 'employee_summary' %}
+                        Employee Summary
+                        {% else %}
+                        Analytics
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-light btn-sm" onclick="window.print()">
+                        <i class="fas fa-print"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Print Header -->
+        <div class="print-only text-center mb-4">
+            <h2>Employee Management System - Report</h2>
+            <h4>{{ report_type|replace('_', ' ')|title }} - {{ selected_month if selected_month else 'All Time' }}</h4>
+            <p>Generated on: {{ current_datetime.strftime('%Y-%m-%d %H:%M') }}</p>
+        </div>
+
+        <!-- Report Controls -->
+        <div class="card mb-4 no-print">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Report Configuration</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label"><strong>Report Type</strong></label>
+                        <div class="btn-group-vertical w-100" role="group">
+                            <a href="{{ url_for('report', type='weekly_salary', month=selected_month, employee_id=selected_employee) }}"
+                                class="btn {% if report_type == 'weekly_salary' %}btn-success{% else %}btn-outline-success{% endif %} text-start">
+                                <i class="fas fa-calendar-week me-2"></i>Weekly Salary Report
+                            </a>
+                            <a href="{{ url_for('report', type='employee_summary') }}"
+                                class="btn {% if report_type == 'employee_summary' %}btn-info{% else %}btn-outline-info{% endif %} text-start">
+                                <i class="fas fa-user-tie me-2"></i>Employee Summary
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="filter-section">
+                            {% if report_type == 'weekly_salary' %}
+                            <form method="GET" class="filter-form">
+                                <input type="hidden" name="type" value="{{ report_type }}">
+
+                                <div class="filter-group">
+                                    <label class="form-label"><strong>Select Month</strong></label>
+                                    <select name="month" class="form-select" onchange="this.form.submit()">
+                                        {% for m in months %}
+                                        <option value="{{ m }}" {% if m==selected_month %}selected{% endif %}>
+                                            {{ m }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="filter-group">
+                                    <label class="form-label"><strong>Filter Employee</strong></label>
+                                    <select name="employee_id" class="form-select" onchange="this.form.submit()">
+                                        <option value="">All Employees</option>
+                                        {% if employees %}
+                                        {% for employee in employees %}
+                                        <option value="{{ employee[0] }}" {% if employee[0]|string==selected_employee %}selected{% endif %}>
+                                            {{ employee[1] }}
+                                            {% if employee[2] %}(Left){% endif %}
+                                        </option>
+                                        {% endfor %}
+                                        {% else %}
+                                        <option value="" disabled>No employees found</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+
+                                <div class="filter-actions">
+                                    <button type="submit" class="btn btn-primary btn-mobile">
+                                        <i class="fas fa-sync-alt me-1"></i> Apply
+                                    </button>
+                                    <a href="{{ url_for('report', type=report_type) }}" class="btn btn-outline-secondary btn-mobile">
+                                        <i class="fas fa-times me-1"></i> Clear
+                                    </a>
+                                </div>
+                            </form>
+                            {% else %}
+                            <div class="text-center text-muted">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Employee Summary shows all employees (active and left).
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Generating report...</p>
+        </div>
+
+        <!-- Report Content -->
+        {% if report_type == 'weekly_salary' %}
+        <!-- Enhanced Weekly Salary Report -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-week me-2"></i>
+                    Weekly Salary - {{ selected_month }}
+                    {% if selected_employee %}
+                    {% for emp in employees %}
+                    {% if emp[0]|string == selected_employee %}
+                    - {{ emp[1] }}
+                    {% if emp[2] %}
+                    <span class="left-employee-badge">
+                        <i class="fas fa-sign-out-alt me-1"></i>Left
+                    </span>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if report_data.weekly_data %}
+
+                <!-- Summary Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ report_data.total_employees }}</div>
+                        <div class="stat-label">Total Employees</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ report_data.active_employees }}</div>
+                        <div class="stat-label">Active Employees</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ report_data.total_weeks }}</div>
+                        <div class="stat-label">Weeks</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ report_data.total_present_days }}</div>
+                        <div class="stat-label">Present Days</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number salary-positive">₹{{ "%.2f"|format(report_data.total_salary) }}</div>
+                        <div class="stat-label">Total Salary</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number advance-positive">₹{{ "%.2f"|format(report_data.total_advance) }}</div>
+                        <div class="stat-label">Total Advance</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number {{ 'salary-negative' if report_data.total_net_salary < 0 else 'salary-positive' }}">
+                            ₹{{ "%.2f"|format(report_data.total_net_salary) }}
+                        </div>
+                        <div class="stat-label">Net Payable</div>
+                    </div>
+                </div>
+
+                <!-- Employee Weekly Cards -->
+                {% for emp_id, employee in report_data.weekly_data.items() %}
+                <div class="card mb-3 weekly-salary-card">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-start flex-column">
+                            <h6 class="mb-1">
+                                <i class="fas fa-user me-2"></i>{{ employee.name }}
+                                {% if employee.leaving_date %}
+                                <span class="left-employee-badge" title="Left on {{ employee.leaving_date.strftime('%Y-%m-%d') if employee.leaving_date is not string else employee.leaving_date }}">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Left
+                                </span>
+                                {% endif %}
+                            </h6>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge bg-primary">{{ employee.salary_type|replace('_', ' ')|title }}</span>
+                                <span class="badge bg-success">₹{{ "%.2f"|format(employee.effective_per_day) }}/day</span>
+                                {% set total_emp_salary = 0 %}
+                                {% set total_emp_advance = 0 %}
+                                {% for week_data in employee.weekly_data.values() %}
+                                    {% set total_emp_salary = total_emp_salary + week_data.salary %}
+                                    {% set total_emp_advance = total_emp_advance + week_data.advance %}
+                                {% endfor %}
+                                {% set total_emp_net = total_emp_salary - total_emp_advance %}
+                                <span class="badge {{ 'bg-danger' if total_emp_net < 0 else 'bg-success' }}">
+                                    Net: ₹{{ "%.2f"|format(total_emp_net) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if employee.weekly_data %}
+                        {% for week, data in employee.weekly_data.items() %}
+                        <div class="card mb-2">
+                            <div class="card-header week-header text-white py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">{{ week }}</h6>
+                                    <div class="text-end">
+                                        <small class="d-block">Net: ₹{{ "%.2f"|format(data.net_salary) }}</small>
+                                        {% if data.week_start and data.week_end %}
+                                        <small class="d-block">{{ data.week_start }} to {{ data.week_end }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <!-- Week Summary -->
+                                <div class="row text-center mb-2">
+                                    <div class="col-4">
+                                        <div class="text-success">
+                                            <strong>{{ data.present_days }}</strong>
+                                            <div><small>Present</small></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-warning">
+                                            <strong>{{ data.half_days }}</strong>
+                                            <div><small>Half Day</small></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-danger">
+                                            <strong>{{ data.absent_days }}</strong>
+                                            <div><small>Absent</small></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Daily Breakdown -->
+                                {% if data.days %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 daily-breakdown-table">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Salary</th>
+                                                <th>Advance</th>
+                                                <th>Net</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for day in data.days %}
+                                            <tr class="{{ 'advance-row' if day.advance > 0 else '' }} {{ 'net-salary-negative' if day.net_salary < 0 else 'net-salary-positive' if day.net_salary > 0 else '' }}">
+                                                <td>
+                                                    {% if day.date is string %}
+                                                    {{ day.date[-5:] }}
+                                                    {% else %}
+                                                    {{ day.date.strftime('%m-%d') }}
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if day.status == 'present' %}
+                                                    <span class="badge present-badge">P</span>
+                                                    {% elif day.status == 'half_day' %}
+                                                    <span class="badge halfday-badge">H</span>
+                                                    {% elif day.status == 'absent' %}
+                                                    <span class="badge absent-badge">A</span>
+                                                    {% elif day.status == 'present_left' %}
+                                                    <span class="badge present-badge">P*</span>
+                                                    {% elif day.status == 'half_day_left' %}
+                                                    <span class="badge halfday-badge">H*</span>
+                                                    {% elif day.status == 'absent_left' %}
+                                                    <span class="badge absent-badge">A*</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary">{{ day.status[:1] }}</span>
+                                                    {% endif %}
+                                                    {% if day.advance > 0 %}
+                                                    <span class="badge advance-badge ms-1">₹</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="salary-positive">₹{{ "%.2f"|format(day.salary) }}</td>
+                                                <td class="advance-positive">
+                                                    {% if day.advance > 0 %}
+                                                    ₹{{ "%.2f"|format(day.advance) }}
+                                                    {% else %}
+                                                    -
+                                                    {% endif %}
+                                                </td>
+                                                <td class="{{ 'salary-negative' if day.net_salary < 0 else 'salary-positive' }}">
+                                                    ₹{{ "%.2f"|format(day.net_salary) }}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="text-muted text-center py-3">No attendance records found for this month</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Weekly Data</h4>
+                    <p class="text-muted">No attendance records found for {{ selected_month }}</p>
+                    {% if selected_employee %}
+                    <div class="mt-3">
+                        <a href="{{ url_for('report', type='weekly_salary', month=selected_month) }}" class="btn btn-primary btn-mobile">
+                            <i class="fas fa-eye me-1"></i> View All Employees
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% elif report_type == 'employee_summary' %}
+        <!-- Enhanced Employee Summary Report -->
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-tie me-2"></i>
+                    Employee Summary (All Employees)
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if report_data.employee_summary %}
+
+                <!-- Summary Statistics -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ report_data.total_employees }}</div>
+                        <div class="stat-label">Total Employees</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ report_data.active_employees }}</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ report_data.total_employees - report_data.active_employees }}</div>
+                        <div class="stat-label">Left</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number salary-positive">₹{{ "%.2f"|format(report_data.total_paid) }}</div>
+                        <div class="stat-label">Total Salary</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number advance-positive">₹{{ "%.2f"|format(report_data.total_advance) }}</div>
+                        <div class="stat-label">Total Advance</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number {{ 'salary-negative' if report_data.total_net_paid < 0 else 'salary-positive' }}">
+                            ₹{{ "%.2f"|format(report_data.total_net_paid) }}
+                        </div>
+                        <div class="stat-label">Net Payable</div>
+                    </div>
+                </div>
+
+                <!-- Employee Cards -->
+                <div class="row">
+                    {% for employee in report_data.employee_summary %}
+                    <div class="col-12 mb-3">
+                        <div class="card employee-card {% if employee.status == 'Active' %}employee-status-active{% else %}employee-status-inactive{% endif %}">
+                            <div class="card-header bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 employee-name">{{ employee.name }}</h6>
+                                    <span class="badge {% if employee.status == 'Active' %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ employee.status }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">Joined</small>
+                                        <div class="mb-2">
+                                            {% if employee.joining_date %}
+                                            {{ employee.joining_date.strftime('%d %b %Y') if employee.joining_date is not string else employee.joining_date }}
+                                            {% else %}
+                                            N/A
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if employee.leaving_date %}
+                                        <small class="text-muted">Left</small>
+                                        <div class="mb-2 text-danger">
+                                            {{ employee.leaving_date.strftime('%d %b %Y') if employee.leaving_date is not string else employee.leaving_date }}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <small class="text-muted">Salary Type</small>
+                                        <div class="mb-2">
+                                            <span class="badge {% if employee.salary_type == 'per_month' %}bg-info{% else %}bg-primary{% endif %}">
+                                                {{ employee.salary_type|replace('_', ' ')|title }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Rate</small>
+                                        <div class="mb-2">
+                                            {% if employee.salary_type == 'per_month' and employee.monthly_salary %}
+                                            ₹{{ "%.2f"|format(employee.monthly_salary) }}/month
+                                            {% else %}
+                                            ₹{{ "%.2f"|format(employee.per_day_salary) }}/day
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <small class="text-muted">Attendance</small>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-success">{{ employee.total_present }}P</span>
+                                            <span class="text-warning">{{ employee.total_half_days }}H</span>
+                                            <span class="text-danger">{{ employee.total_absent }}A</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-top pt-2 mt-2">
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <div class="salary-positive">₹{{ "%.2f"|format(employee.total_earned) }}</div>
+                                            <small>Earned</small>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="advance-positive">₹{{ "%.2f"|format(employee.total_advance) }}</div>
+                                            <small>Advance</small>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="{{ 'salary-negative' if employee.net_earned < 0 else 'salary-positive' }}">
+                                                ₹{{ "%.2f"|format(employee.net_earned) }}
+                                            </div>
+                                            <small>Net</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Employees Found</h4>
+                    <p class="text-muted">Add employees to see the summary report</p>
+                    <div class="mt-3">
+                        <a href="{{ url_for('employees') }}" class="btn btn-primary btn-mobile">
+                            <i class="fas fa-user-plus me-1"></i> Add Employees
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Default View -->
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                <h4 class="text-primary">Comprehensive Reporting</h4>
+                <p class="text-muted">Select a report type to generate detailed analytics</p>
+                <div class="row mt-4">
+                    <div class="col-12 mb-3">
+                        <div class="card border-success h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-week fa-2x text-success mb-2"></i>
+                                <h6>Weekly Salary Report</h6>
+                                <p class="text-muted small">Week-by-week salary analysis with daily breakdown for all employees</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="card border-info h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-tie fa-2x text-info mb-2"></i>
+                                <h6>Employee Summary</h6>
+                                <p class="text-muted small">Complete employee overview with lifetime statistics for all employees</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav no-print">
+        <div class="nav-grid">
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="{{ url_for('employees') }}" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span class="nav-label">Employees</span>
+            </a>
+            <a href="{{ url_for('attendance') }}" class="nav-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="nav-label">Attendance</span>
+            </a>
+            <a href="{{ url_for('salary') }}" class="nav-item">
+                <i class="fas fa-calculator"></i>
+                <span class="nav-label">Salary</span>
+            </a>
+            <a href="{{ url_for('report') }}" class="nav-item active">
+                <i class="fas fa-chart-bar"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+        </div>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show loading spinner when changing reports
+        document.addEventListener('DOMContentLoaded', function () {
+            const links = document.querySelectorAll('a[href*="type="]');
+            links.forEach(link => {
+                link.addEventListener('click', function () {
+                    document.getElementById('loadingSpinner').style.display = 'block';
+                });
+            });
+
+            // Hide loading spinner after page load
+            window.addEventListener('load', function () {
+                document.getElementById('loadingSpinner').style.display = 'none';
+            });
+        });
+
+        // Auto-hide loading spinner after 5 seconds (fallback)
+        setTimeout(function () {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }, 5000);
+    </script>
+</body>
+
+</html>

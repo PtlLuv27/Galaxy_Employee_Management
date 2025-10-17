@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Employee Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --light-bg: #f8f9fa;
+        }
+        
+        body {
+            font-size: 14px;
+            background-color: var(--light-bg);
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        
+        /* Mobile Header */
+        .mobile-header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            padding: 1rem;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* Date Selector */
+        .date-selector {
+            background: white;
+            border-radius: 10px;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Stats Summary */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 0.8rem;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.2rem;
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        
+        /* Employee Cards - Mobile Optimized */
+        .employee-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .employee-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .employee-card.left-employee {
+            background-color: #f8f9fa;
+            opacity: 0.8;
+            border-left-color: #6c757d;
+        }
+        
+        .employee-card.advance-changed {
+            border-left-color: var(--info-color);
+            background-color: #d1ecf1 !important;
+        }
+        
+        .employee-card.notes-changed {
+            background-color: #fff3cd !important;
+            border-left-color: #ffc107 !important;
+        }
+        
+        .employee-card.advance-changed.notes-changed {
+            background: linear-gradient(45deg, #d1ecf1, #fff3cd) !important;
+            border-left-color: #17a2b8 !important;
+        }
+        
+        .employee-card.has-advance {
+            border-left-color: var(--info-color);
+        }
+        
+        .employee-card.has-notes .notes-badge {
+            display: inline-block !important;
+        }
+        
+        .employee-card.status-present {
+            border-left-color: var(--success-color);
+        }
+        
+        .employee-card.status-half_day {
+            border-left-color: var(--warning-color);
+        }
+        
+        .employee-card.status-absent {
+            border-left-color: var(--danger-color);
+        }
+        
+        .employee-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
+        }
+        
+        .employee-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 0.2rem;
+        }
+        
+        .employee-status {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .notes-badge {
+            display: none;
+            margin-left: 8px;
+            font-size: 0.7rem;
+        }
+        
+        .left-badge {
+            background-color: #6c757d;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+        
+        .status-present { background-color: var(--success-color); }
+        .status-half_day { background-color: var(--warning-color); }
+        .status-absent { background-color: var(--danger-color); }
+        .status-not_marked { background-color: #6c757d; }
+        
+        /* Status Selector - Mobile Optimized */
+        .status-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .status-option {
+            flex: 1;
+            text-align: center;
+            padding: 0.6rem 0.4rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 2px solid #e9ecef;
+            background: white;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .status-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f8f9fa;
+        }
+        
+        .status-option.active {
+            border-color: transparent;
+            color: white;
+        }
+        
+        .status-option.present.active { background-color: var(--success-color); }
+        .status-option.half_day.active { background-color: var(--warning-color); }
+        .status-option.absent.active { background-color: var(--danger-color); }
+        
+        .status-option:not(.active):not(.disabled):hover {
+            border-color: #adb5bd;
+        }
+        
+        /* Advance Section */
+        .advance-section {
+            background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .advance-section.disabled {
+            background: #f8f9fa;
+            opacity: 0.6;
+        }
+        
+        .advance-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            color: #495057;
+        }
+        
+        .advance-input-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .advance-input {
+            flex: 1;
+            font-size: 0.9rem;
+            height: 38px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            padding: 0.5rem;
+        }
+        
+        .advance-input:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+        
+        .currency-symbol {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-mobile {
+            flex: 1;
+            padding: 0.6rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .btn-mobile:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-apply {
+            background-color: var(--info-color);
+            color: white;
+            border: none;
+        }
+        
+        .btn-apply:disabled {
+            background-color: #6c757d;
+            opacity: 0.6;
+        }
+        
+        .btn-notes {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            color: #495057;
+        }
+        
+        /* Floating Apply Button */
+        .floating-apply {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border-radius: 50px;
+            padding: 0.8rem 1.2rem;
+            font-weight: 600;
+        }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #dee2e6;
+            padding: 0.5rem;
+            z-index: 1000;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.3rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #6c757d;
+            padding: 0.4rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            color: var(--primary-color);
+            background-color: #e3f2fd;
+        }
+        
+        .nav-item i {
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+        
+        .nav-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.1;
+        }
+        
+        /* Modal Improvements */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.4rem;
+            }
+            
+            .stat-item {
+                padding: 0.6rem;
+            }
+            
+            .stat-number {
+                font-size: 1rem;
+            }
+            
+            .stat-label {
+                font-size: 0.65rem;
+            }
+            
+            .employee-card {
+                padding: 0.8rem;
+            }
+            
+            .status-selector {
+                gap: 0.3rem;
+            }
+            
+            .status-option {
+                padding: 0.5rem 0.3rem;
+                font-size: 0.75rem;
+            }
+            
+            .advance-section {
+                padding: 0.6rem;
+            }
+            
+            .btn-mobile {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+            
+            .floating-apply {
+                bottom: 70px;
+                right: 15px;
+                padding: 0.7rem 1rem;
+                font-size: 0.8rem;
+            }
+            
+            .mobile-header h2 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .status-selector {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        /* Touch-friendly improvements */
+        .btn, .status-option {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        /* Loading states */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Attendance</h2>
+                    <small class="opacity-75">{{ selected_date }}</small>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="me-2 d-none d-sm-inline">
+                        <i class="fas fa-user me-1"></i> {{ session.user_name }}
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-messages" class="mb-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
+                                <span class="flex-grow-1">{{ message }}</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Date Selector -->
+        <div class="date-selector">
+            <div class="row align-items-center">
+                <div class="col-8">
+                    <label class="form-label mb-1"><strong>Select Date</strong></label>
+                    <input type="date" class="form-control" id="datePicker" value="{{ selected_date }}">
+                </div>
+                <div class="col-4 text-end">
+                    <button class="btn btn-info btn-mobile floating-apply" id="applyChanges" disabled>
+                        <i class="fas fa-check me-1"></i> Apply UPPAD
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        {% if summary %}
+        <div class="stats-grid">
+            <div class="stat-item text-success">
+                <div class="stat-number">{{ summary[1] or 0 }}</div>
+                <div class="stat-label">Present</div>
+            </div>
+            <div class="stat-item text-warning">
+                <div class="stat-number">{{ summary[2] or 0 }}</div>
+                <div class="stat-label">Half Day</div>
+            </div>
+            <div class="stat-item text-danger">
+                <div class="stat-number">{{ summary[3] or 0 }}</div>
+                <div class="stat-label">Absent</div>
+            </div>
+            <div class="stat-item text-primary">
+                <div class="stat-number">{{ summary[0] or 0 }}</div>
+                <div class="stat-label">Marked</div>
+            </div>
+            <div class="stat-item text-info">
+                <div class="stat-number" id="totalAdvance">0</div>
+                <div class="stat-label">Advance</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Employees List - Cards Layout -->
+        <div class="employee-cards-container" id="employeesContainer">
+            {% for employee in employees %}
+            {% set current_status = attendance_data.get(employee[0], {}).get('status', 'not_marked') %}
+            {% set current_notes = attendance_data.get(employee[0], {}).get('notes', '') %}
+            {% set is_left_employee = employee[2] and employee[2].strftime('%Y-%m-%d') <= selected_date %}
+            {% set can_mark_attendance = not is_left_employee or (employee[2] and employee[2].strftime('%Y-%m-%d') == selected_date) %}
+            
+            <div class="employee-card fade-in status-{{ current_status }} {% if current_notes %}has-notes{% endif %} {% if is_left_employee %}left-employee{% endif %}" 
+                 id="card-{{ employee[0] }}"
+                 data-employee-id="{{ employee[0] }}"
+                 data-original-status="{{ current_status }}"
+                 data-original-advance="{{ attendance_data.get(employee[0], {}).get('advance', 0) }}"
+                 data-original-notes="{{ current_notes }}"
+                 data-is-left="{{ 'true' if is_left_employee else 'false' }}"
+                 data-can-mark="{{ 'true' if can_mark_attendance else 'false' }}">
+                
+                <!-- Employee Header -->
+                <div class="employee-header">
+                    <div>
+                        <div class="employee-name">{{ employee[1] }}</div>
+                        <div class="employee-status">
+                            <span class="status-indicator status-{{ current_status }}"></span>
+                            {{ current_status.replace('_', ' ').title() }}
+                            {% if is_left_employee %}
+                            <span class="left-badge" title="Employee left on {{ employee[2] }}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Left
+                            </span>
+                            {% endif %}
+                            {% if current_notes %}
+                            <span class="badge bg-secondary notes-badge" title="Has notes">
+                                <i class="fas fa-sticky-note"></i>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if attendance_data.get(employee[0], {}).get('advance', 0) > 0 %}
+                    <div class="advance-badge">
+                        <span class="badge bg-info">₹{{ attendance_data.get(employee[0], {}).get('advance', 0) }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Status Selector -->
+                <div class="status-selector">
+                    <div class="status-option present {% if current_status == 'present' %}active{% endif %} {% if not can_mark_attendance %}disabled{% endif %}" 
+                         data-status="present" data-employee="{{ employee[0] }}">
+                        <i class="fas fa-check me-1"></i> Present
+                    </div>
+                    <div class="status-option half_day {% if current_status == 'half_day' %}active{% endif %} {% if not can_mark_attendance %}disabled{% endif %}" 
+                         data-status="half_day" data-employee="{{ employee[0] }}">
+                        <i class="fas fa-adjust me-1"></i> Half Day
+                    </div>
+                    <div class="status-option absent {% if current_status == 'absent' %}active{% endif %} {% if not can_mark_attendance %}disabled{% endif %}" 
+                         data-status="absent" data-employee="{{ employee[0] }}">
+                        <i class="fas fa-times me-1"></i> Absent
+                    </div>
+                </div>
+                
+                <!-- Advance Section -->
+                <div class="advance-section {% if not can_mark_attendance %}disabled{% endif %}">
+                    <div class="advance-label">UPPAD</div>
+                    <div class="advance-input-container">
+                        <span class="currency-symbol">₹</span>
+                        <input type="number" class="form-control advance-input" 
+                               id="advance_{{ employee[0] }}" 
+                               placeholder="0" 
+                               step="1" 
+                               min="0"
+                               value="{{ attendance_data.get(employee[0], {}).get('advance', 0) }}"
+                               data-employee="{{ employee[0] }}"
+                               data-original-value="{{ attendance_data.get(employee[0], {}).get('advance', 0) }}"
+                               {% if not can_mark_attendance %}disabled{% endif %}>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-mobile btn-apply" 
+                            data-employee="{{ employee[0] }}" 
+                            id="apply-{{ employee[0] }}"
+                            disabled
+                            {% if not can_mark_attendance %}disabled{% endif %}>
+                        <i class="fas fa-check me-1"></i> Apply UPPAD
+                    </button>
+                    <button class="btn btn-mobile btn-notes" 
+                            onclick="showNotesModal('{{ employee[0] }}', '{{ employee[1] }}')"
+                            {% if not can_mark_attendance %}disabled{% endif %}>
+                        <i class="fas fa-edit me-1"></i> Notes
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not employees %}
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <h4 class="text-muted">No Employees Found</h4>
+            <p class="text-muted">Add employees to start marking attendance.</p>
+            <a href="{{ url_for('add_employee') }}" class="btn btn-primary btn-mobile">
+                <i class="fas fa-plus me-1"></i> Add Employee
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-grid">
+            <a href="{{ url_for('dashboard') }}" class="nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span class="nav-label">Dashboard</span>
+            </a>
+            <a href="{{ url_for('employees') }}" class="nav-item">
+                <i class="fas fa-user-tie"></i>
+                <span class="nav-label">Employees</span>
+            </a>
+            <a href="{{ url_for('attendance') }}" class="nav-item active">
+                <i class="fas fa-calendar-check"></i>
+                <span class="nav-label">Attendance</span>
+            </a>
+            <a href="{{ url_for('salary') }}" class="nav-item">
+                <i class="fas fa-calculator"></i>
+                <span class="nav-label">Salary</span>
+            </a>
+            <a href="{{ url_for('report') }}" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Notes Modal -->
+    <div class="modal fade" id="notesModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notesModalTitle">Add Notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" id="notesInput" rows="4" placeholder="Enter notes for this employee..."></textarea>
+                    <small class="text-muted">Notes are saved automatically when you close this modal.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNotes()">Save Notes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    let changesMade = false;
+    const employeeChanges = new Set();
+    const notesChanges = new Set();
+    let currentEmployeeId = null;
+    const notesModal = new bootstrap.Modal(document.getElementById('notesModal'));
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeApp();
+    });
+
+    function initializeApp() {
+        // Date picker
+        const datePicker = document.getElementById('datePicker');
+        if (datePicker) {
+            datePicker.addEventListener('change', function() {
+                showLoading();
+                window.location.href = `{{ url_for('attendance') }}?date=${this.value}`;
+            });
+        }
+
+        // Calculate initial total advance
+        updateTotalAdvance();
+
+        // Store original advance values
+        storeOriginalAdvanceValues();
+
+        // Event listeners for changes
+        setupEventListeners();
+        
+        // Disable controls for left employees where applicable
+        disableLeftEmployeeControls();
+    }
+
+    function disableLeftEmployeeControls() {
+        document.querySelectorAll('.employee-card[data-is-left="true"]').forEach(card => {
+            const employeeId = card.dataset.employeeId;
+            const canMark = card.dataset.canMark === 'true';
+            
+            if (!canMark) {
+                // Disable all interactive elements
+                const statusOptions = card.querySelectorAll('.status-option');
+                const advanceInput = card.querySelector('.advance-input');
+                const applyBtn = card.querySelector('.btn-apply');
+                const notesBtn = card.querySelector('.btn-notes');
+                
+                statusOptions.forEach(option => option.classList.add('disabled'));
+                if (advanceInput) advanceInput.disabled = true;
+                if (applyBtn) applyBtn.disabled = true;
+                if (notesBtn) notesBtn.disabled = true;
+            }
+        });
+    }
+
+    function storeOriginalAdvanceValues() {
+        document.querySelectorAll('.advance-input').forEach(input => {
+            const originalValue = input.value || '0';
+            input.setAttribute('data-original-value', originalValue);
+        });
+    }
+
+    function setupEventListeners() {
+        // Status options - Toggle behavior
+        document.querySelectorAll('.status-option:not(.disabled)').forEach(option => {
+            option.addEventListener('click', function() {
+                const employeeId = this.dataset.employee;
+                const status = this.dataset.status;
+                const card = document.getElementById(`card-${employeeId}`);
+                const canMark = card ? card.dataset.canMark === 'true' : true;
+                
+                if (!canMark) {
+                    showNotification('Cannot mark attendance for left employee', 'error');
+                    return;
+                }
+                
+                const currentActive = document.querySelector(`.status-option[data-employee="${employeeId}"].active`);
+                
+                // If clicking the same status that's already active, remove status (toggle off)
+                if (currentActive && currentActive.dataset.status === status) {
+                    // Remove all active statuses
+                    document.querySelectorAll(`.status-option[data-employee="${employeeId}"]`).forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    // Save as "not_marked"
+                    saveStatusChange(employeeId, 'not_marked');
+                } else {
+                    // Set new status
+                    document.querySelectorAll(`.status-option[data-employee="${employeeId}"]`).forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    // Save the new status
+                    saveStatusChange(employeeId, status);
+                }
+            });
+        });
+
+        // Advance inputs
+        document.querySelectorAll('.advance-input:not(:disabled)').forEach(input => {
+            input.addEventListener('input', debounce(function() {
+                const employeeId = this.dataset.employee;
+                const currentValue = this.value || '0';
+                const originalValue = this.getAttribute('data-original-value') || '0';
+                
+                // Check if advance value actually changed
+                if (currentValue !== originalValue) {
+                    handleAdvanceChange(employeeId);
+                }
+                updateTotalAdvance();
+            }, 300));
+
+            // Also check on blur for immediate feedback
+            input.addEventListener('blur', function() {
+                const employeeId = this.dataset.employee;
+                const currentValue = this.value || '0';
+                const originalValue = this.getAttribute('data-original-value') || '0';
+                
+                if (currentValue !== originalValue) {
+                    handleAdvanceChange(employeeId);
+                }
+            });
+        });
+
+        // Individual apply buttons for advance only
+        document.querySelectorAll('.btn-apply:not(:disabled)').forEach(button => {
+            button.addEventListener('click', function() {
+                applyAdvanceForEmployee(this.dataset.employee);
+            });
+        });
+
+        // Global apply button for advance only
+        document.getElementById('applyChanges').addEventListener('click', function() {
+            applyAllAdvanceChanges();
+        });
+
+        // Handle modal close with notes saving
+        document.getElementById('notesModal').addEventListener('hidden.bs.modal', function() {
+            if (currentEmployeeId) {
+                saveNotesSilently();
+            }
+        });
+    }
+
+    function saveStatusChange(employeeId, status) {
+        const date = document.getElementById('datePicker').value;
+        const notes = getCurrentNotesForEmployee(employeeId);
+        const advance = getCurrentAdvance(employeeId);
+        const card = document.getElementById(`card-${employeeId}`);
+        const canMark = card ? card.dataset.canMark === 'true' : true;
+
+        if (!canMark) {
+            showNotification('Cannot mark attendance for left employee', 'error');
+            return;
+        }
+
+        showLoading();
+        
+        fetch('{{ url_for("update_attendance") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                employee_id: employeeId,
+                date: date,
+                status: status,
+                notes: notes,
+                advance: advance
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update card appearance
+                updateCardStatus(employeeId, status);
+                showNotification('Status updated successfully', 'success');
+            } else {
+                showNotification('Error: ' + data.message, 'error');
+                // Revert UI on error
+                setTimeout(() => location.reload(), 1000);
+            }
+        })
+        .catch(error => {
+            showNotification('Network error', 'error');
+            setTimeout(() => location.reload(), 1000);
+        })
+        .finally(() => {
+            hideLoading();
+        });
+    }
+
+    function updateCardStatus(employeeId, status) {
+        const card = document.getElementById(`card-${employeeId}`);
+        if (!card) return;
+
+        // Remove all status classes
+        card.classList.remove('status-present', 'status-half_day', 'status-absent', 'status-not_marked');
+        
+        // Add current status class
+        if (status && status !== 'not_marked') {
+            card.classList.add(`status-${status}`);
+        }
+
+        // Update status text
+        const statusElement = card.querySelector('.employee-status');
+        if (statusElement) {
+            const statusText = status === 'not_marked' ? 'Not Marked' : status.replace('_', ' ').title();
+            statusElement.innerHTML = `
+                <span class="status-indicator status-${status}"></span>
+                ${statusText}
+                ${card.dataset.isLeft === 'true' ? '<span class="left-badge"><i class="fas fa-sign-out-alt me-1"></i>Left</span>' : ''}
+                ${statusElement.querySelector('.notes-badge') ? statusElement.querySelector('.notes-badge').outerHTML : ''}
+            `;
+        }
+    }
+
+    function handleAdvanceChange(employeeId) {
+        const card = document.getElementById(`card-${employeeId}`);
+        const canMark = card ? card.dataset.canMark === 'true' : true;
+
+        if (!canMark) {
+            showNotification('Cannot modify advance for left employee', 'error');
+            return;
+        }
+
+        employeeChanges.add(employeeId);
+        
+        // Enable individual apply button for advance
+        const singleApplyBtn = document.querySelector(`.btn-apply[data-employee="${employeeId}"]`);
+        if (singleApplyBtn) {
+            singleApplyBtn.disabled = false;
+            singleApplyBtn.classList.add('btn-info');
+        }
+
+        updateCardAdvanceAppearance(employeeId);
+        updateGlobalApplyButton();
+    }
+
+    function handleNotesChange(employeeId) {
+        notesChanges.add(employeeId);
+        updateCardNotesAppearance(employeeId);
+    }
+
+    function updateCardAdvanceAppearance(employeeId) {
+        const card = document.getElementById(`card-${employeeId}`);
+        if (!card) return;
+
+        const hasAdvanceChanges = employeeChanges.has(employeeId);
+        const hasAdvance = getCurrentAdvance(employeeId) > 0;
+
+        // Reset advance classes
+        card.classList.remove('advance-changed', 'has-advance');
+
+        // Add appropriate classes
+        if (hasAdvanceChanges) {
+            card.classList.add('advance-changed');
+        }
+    }
+
+    function updateCardNotesAppearance(employeeId) {
+        const card = document.getElementById(`card-${employeeId}`);
+        if (!card) return;
+
+        const hasNotesChanges = notesChanges.has(employeeId);
+
+        if (hasNotesChanges) {
+            card.classList.add('notes-changed');
+        } else {
+            card.classList.remove('notes-changed');
+        }
+    }
+
+    function updateGlobalApplyButton() {
+        const applyBtn = document.getElementById('applyChanges');
+        const hasChanges = employeeChanges.size > 0;
+        
+        applyBtn.disabled = !hasChanges;
+        
+        if (hasChanges) {
+            applyBtn.innerHTML = `<i class="fas fa-check me-1"></i> Apply UPPAD (${employeeChanges.size})`;
+            applyBtn.classList.remove('btn-secondary');
+            applyBtn.classList.add('btn-info');
+        } else {
+            applyBtn.innerHTML = `<i class="fas fa-check me-1"></i> Apply UPPAD`;
+            applyBtn.classList.remove('btn-info');
+            applyBtn.classList.add('btn-secondary');
+        }
+    }
+
+    function getCurrentStatus(employeeId) {
+        const activeOption = document.querySelector(`.status-option[data-employee="${employeeId}"].active`);
+        return activeOption ? activeOption.dataset.status : 'not_marked';
+    }
+
+    function getCurrentAdvance(employeeId) {
+        const advanceInput = document.getElementById(`advance_${employeeId}`);
+        return advanceInput ? parseFloat(advanceInput.value) || 0 : 0;
+    }
+
+    function getCurrentNotesForEmployee(employeeId) {
+        // Get notes from the stored data attribute
+        const card = document.getElementById(`card-${employeeId}`);
+        return card ? card.getAttribute('data-original-notes') || '' : '';
+    }
+
+    function updateTotalAdvance() {
+        let totalAdvance = 0;
+        document.querySelectorAll('.advance-input').forEach(input => {
+            totalAdvance += parseFloat(input.value) || 0;
+        });
+        document.getElementById('totalAdvance').textContent = totalAdvance;
+    }
+
+    function showNotesModal(employeeId, employeeName) {
+        const card = document.getElementById(`card-${employeeId}`);
+        const canMark = card ? card.dataset.canMark === 'true' : true;
+
+        if (!canMark) {
+            showNotification('Cannot modify notes for left employee', 'error');
+            return;
+        }
+
+        currentEmployeeId = employeeId;
+        document.getElementById('notesModalTitle').textContent = `Notes for ${employeeName}`;
+        
+        // Load existing notes from server
+        showLoading();
+        const date = document.getElementById('datePicker').value;
+        
+        fetch('{{ url_for("get_attendance_notes") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                },
+            body: JSON.stringify({
+                employee_id: employeeId,
+                date: date
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('notesInput').value = data.notes || '';
+                // Store original notes value
+                document.getElementById('notesInput').setAttribute('data-original-value', data.notes || '');
+            } else {
+                showNotification('Error loading notes: ' + data.message, 'error');
+                document.getElementById('notesInput').value = '';
+            }
+        })
+        .catch(error => {
+            showNotification('Network error loading notes', 'error');
+            document.getElementById('notesInput').value = '';
+        })
+        .finally(() => {
+            hideLoading();
+            notesModal.show();
+        });
+    }
+
+    function saveNotes() {
+        if (currentEmployeeId) {
+            saveNotesSilently();
+            notesModal.hide();
+            showNotification('Notes saved successfully', 'success');
+        }
+    }
+
+    function saveNotesSilently() {
+        if (currentEmployeeId) {
+            const notes = document.getElementById('notesInput').value;
+            const originalNotes = document.getElementById('notesInput').getAttribute('data-original-value') || '';
+            
+            // Check if notes actually changed
+            if (notes !== originalNotes) {
+                // Update the card's data attribute
+                const card = document.getElementById(`card-${currentEmployeeId}`);
+                if (card) {
+                    card.setAttribute('data-original-notes', notes);
+                }
+                
+                // Update notes indicator
+                updateNotesIndicator(currentEmployeeId, notes);
+                
+                // Save to database
+                saveNotesToDatabase(currentEmployeeId, notes);
+                
+                handleNotesChange(currentEmployeeId);
+            }
+        }
+    }
+
+    function saveNotesToDatabase(employeeId, notes) {
+        const date = document.getElementById('datePicker').value;
+        const status = getCurrentStatus(employeeId);
+        const advance = getCurrentAdvance(employeeId);
+
+        showLoading();
+        fetch('{{ url_for("update_attendance") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                },
+            body: JSON.stringify({
+                employee_id: employeeId,
+                date: date,
+                status: status,
+                notes: notes,
+                advance: advance
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the original value to prevent showing as changed again
+                document.getElementById('notesInput').setAttribute('data-original-value', notes);
+                notesChanges.delete(employeeId);
+                updateCardNotesAppearance(employeeId);
+            } else {
+                console.error('Error saving notes:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Network error saving notes:', error);
+        })
+        .finally(() => {
+            hideLoading();
+        });
+    }
+
+    function updateNotesIndicator(employeeId, notes) {
+        const card = document.getElementById(`card-${employeeId}`);
+        if (!card) return;
+
+        const statusElement = card.querySelector('.employee-status');
+        if (statusElement) {
+            // Remove existing notes badge
+            const existingBadge = statusElement.querySelector('.notes-badge');
+            if (existingBadge) {
+                existingBadge.remove();
+            }
+            
+            // Add notes badge if there are notes
+            if (notes && notes.trim() !== '') {
+                const notesBadge = document.createElement('span');
+                notesBadge.className = 'badge bg-secondary notes-badge';
+                notesBadge.title = 'Has notes';
+                notesBadge.innerHTML = '<i class="fas fa-sticky-note"></i>';
+                statusElement.appendChild(notesBadge);
+                card.classList.add('has-notes');
+            } else {
+                card.classList.remove('has-notes');
+            }
+        }
+    }
+
+    function applyAdvanceForEmployee(employeeId) {
+        const card = document.getElementById(`card-${employeeId}`);
+        const canMark = card ? card.dataset.canMark === 'true' : true;
+
+        if (!canMark) {
+            showNotification('Cannot apply advance for left employee', 'error');
+            return;
+        }
+
+        const advance = getCurrentAdvance(employeeId);
+        const status = getCurrentStatus(employeeId);
+        const notes = getCurrentNotesForEmployee(employeeId);
+        const date = document.getElementById('datePicker').value;
+
+        showLoading();
+        updateAttendance(employeeId, date, status, notes, advance, true);
+    }
+
+    function applyAllAdvanceChanges() {
+        if (employeeChanges.size === 0) {
+            showNotification('No advance changes to apply', 'warning');
+            return;
+        }
+
+        showLoading();
+        const date = document.getElementById('datePicker').value;
+        const changes = Array.from(employeeChanges);
+        let processed = 0;
+        let successCount = 0;
+
+        changes.forEach(employeeId => {
+            const card = document.getElementById(`card-${employeeId}`);
+            const canMark = card ? card.dataset.canMark === 'true' : true;
+
+            if (!canMark) {
+                processed++;
+                if (processed === changes.length) {
+                    showNotification(`Applied ${successCount} of ${changes.length} advance changes`, 'warning');
+                    setTimeout(() => location.reload(), 1000);
+                }
+                return;
+            }
+
+            const status = getCurrentStatus(employeeId);
+            const advance = getCurrentAdvance(employeeId);
+            const notes = getCurrentNotesForEmployee(employeeId);
+
+            setTimeout(() => {
+                updateAttendance(employeeId, date, status, notes, advance, false)
+                    .then((success) => {
+                        processed++;
+                        if (success) successCount++;
+                        
+                        if (processed === changes.length) {
+                            if (successCount === changes.length) {
+                                showNotification(`Successfully applied ${successCount} advance changes`, 'success');
+                            } else {
+                                showNotification(`Applied ${successCount} of ${changes.length} advance changes`, 'warning');
+                            }
+                            setTimeout(() => location.reload(), 1000);
+                        }
+                    });
+            }, processed * 200);
+        });
+    }
+
+    function updateAttendance(employeeId, date, status, notes, advance, isSingle) {
+        return fetch('{{ url_for("update_attendance") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                employee_id: employeeId,
+                date: date,
+                status: status,
+                notes: notes,
+                advance: advance
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (isSingle) {
+                    // Update original values for advance
+                    const advanceInput = document.getElementById(`advance_${employeeId}`);
+                    if (advanceInput) {
+                        advanceInput.setAttribute('data-original-value', advance || '0');
+                    }
+                    
+                    employeeChanges.delete(employeeId);
+                    updateCardAdvanceAppearance(employeeId);
+                    updateGlobalApplyButton();
+                    showNotification('Advance applied successfully', 'success');
+                }
+                return true;
+            } else {
+                showNotification('Error: ' + data.message, 'error');
+                return false;
+            }
+        })
+        .catch(error => {
+            showNotification('Network error', 'error');
+            return false;
+        })
+        .finally(() => {
+            hideLoading();
+        });
+    }
+
+    function showNotification(message, type) {
+        const icon = type === 'error' ? 'exclamation-triangle' : 
+                    type === 'warning' ? 'exclamation-circle' : 
+                    type === 'info' ? 'info-circle' : 'check-circle';
+        
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; left: 20px; z-index: 1060;';
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-${icon} me-2"></i>
+                <span class="flex-grow-1">${message}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+
+    function showLoading() {
+        document.body.classList.add('loading');
+    }
+
+    function hideLoading() {
+        document.body.classList.remove('loading');
+    }
+
+    // Utility function for debouncing
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // Page became visible, refresh data if needed
+            updateTotalAdvance();
+        }
+    });
+</script>
+</body>
+</html>
