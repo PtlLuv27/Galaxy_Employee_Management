@@ -14,20 +14,21 @@ CREATE TABLE users (
 -- Employees table with user_id for multi-tenancy
 CREATE TABLE employees (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,  -- Links to users table for data isolation
+    user_id INT NOT NULL,                   -- Links to users table for data isolation
     name VARCHAR(255) NOT NULL,
-    mobile_number VARCHAR(15) NULL,  -- Changed to NULLABLE and NOT UNIQUE
+    mobile_number VARCHAR(15) NULL,         -- Nullable and not unique
     pan_number VARCHAR(20),
     date_of_birth DATE,
     address TEXT,
     profile_image VARCHAR(255),
-    joining_date DATE NOT NULL,  -- Added as compulsory field
-    leaving_date DATE NULL,  -- Added for employee status tracking
-    is_active BOOLEAN DEFAULT TRUE,
+    joining_date DATE NOT NULL,             -- Required field for employee start date
+    leaving_date DATE NULL,                 -- Optional field for tracking resignations
+    is_active BOOLEAN DEFAULT TRUE,         -- Tracks current status
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL, -- Soft delete support
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-    -- Removed the UNIQUE KEY constraint for mobile_number
 );
+
 
 -- Salary configuration table with individual settings per employee
 CREATE TABLE salary_config (
@@ -76,4 +77,3 @@ CREATE TABLE password_resets (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE employees ADD COLUMN deleted_at TIMESTAMP NULL DEFAULT NULL;
